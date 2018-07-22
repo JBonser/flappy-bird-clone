@@ -1,6 +1,6 @@
 import pygame
 import time
-from random import randint
+from random import randint, randrange
 
 
 # Initialise Pygame
@@ -10,11 +10,20 @@ pygame.init()
 # Game Variables
 CLOCK = pygame.time.Clock()
 FPS = 60
-BACKGROUND_COLOUR = (0, 0, 0)
-WHITE = (255, 255, 255)
 SCREEN_X = 800
 SCREEN_Y = 400
 GAME_FONT = "freesansbold.ttf"
+
+# Colours
+BACKGROUND_COLOUR = (0, 0, 0)
+WHITE = (255, 255, 255)
+SUNSET = (253, 72, 47)
+GREEN_YELLOW = (184, 255, 0)
+BRIGHT_BLUE = (47, 228,253)
+ORANGE = (255, 113, 0)
+YELLOW = (255, 236, 0)
+PURPLE = (252, 67, 255)
+COLOUR_CHOICES = [GREEN_YELLOW, BRIGHT_BLUE, BRIGHT_BLUE, ORANGE, YELLOW, PURPLE]
 
 # Setup Window
 surface = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
@@ -26,9 +35,10 @@ def draw_score(count):
     text = font.render("Score: {}".format(count), True, WHITE)
     surface.blit(text, [0, 0])
 
-def draw_blocks(block_x, block_y, block_width, block_height, gap):
-    pygame.draw.rect(surface, WHITE, [block_x, block_y, block_width, block_height])
-    pygame.draw.rect(surface, WHITE, [block_x, block_y + block_height + gap, block_width, SCREEN_Y])
+
+def draw_blocks(block_x, block_y, block_width, block_height, gap, colour_choice):
+    pygame.draw.rect(surface, colour_choice, [block_x, block_y, block_width, block_height])
+    pygame.draw.rect(surface, colour_choice, [block_x, block_y + block_height + gap, block_width, SCREEN_Y])
 
 
 def draw_flappy_bird(x, y, image):
@@ -49,7 +59,7 @@ def replay_or_quit():
 
 
 def make_text_objects(text, font):
-    text_surface = font.render(text, True, WHITE)
+    text_surface = font.render(text, True, SUNSET)
     return text_surface, text_surface.get_rect()
 
 
@@ -92,10 +102,13 @@ def main():
     block_width = 75
     gap = bird_rect.size[1] * 3
     block_height = randint(0, SCREEN_Y - gap)
-    block_move = 3
+    base_block_move = 3
+    block_move = base_block_move
+    block_colour = COLOUR_CHOICES[randrange(0, len(COLOUR_CHOICES))]
 
     # Game
     current_score = 0
+    allow_score_update = True
 
     should_quit = False
     while not should_quit:
@@ -120,7 +133,7 @@ def main():
 
         # Draw
         draw_flappy_bird(bird_x, bird_y, bird_img)
-        draw_blocks(block_x, block_y, block_width, block_height, gap)
+        draw_blocks(block_x, block_y, block_width, block_height, gap, block_colour)
         draw_score(current_score)
 
         # Boundary Check Ceiling and Floor
@@ -133,7 +146,9 @@ def main():
         # Generate new blocks once they've gone off the screen
         if block_x < (-1 * block_width):
             block_x = SCREEN_X
-            block_height = randint(0, SCREEN_Y - gap)
+            block_height = randint(0, SCREEN_Y - int(gap))
+            block_colour = COLOUR_CHOICES[randrange(0, len(COLOUR_CHOICES))]
+            allow_score_update = True
 
         # Check Upper Block Bounds against Bird
         if bird_x + bird_rect.size[0] > block_x and \
@@ -149,8 +164,12 @@ def main():
             game_over()
 
         # Update Score
-        if block_x > bird_x > block_x - block_move:
+        if block_x < bird_x - block_width and allow_score_update:
             current_score += 1
+            allow_score_update = False
+
+        # Update Speed
+        block_move = base_block_move + current_score * 0.2
 
         # Render the Screen
         pygame.display.update()
