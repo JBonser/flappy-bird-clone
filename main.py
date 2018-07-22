@@ -23,7 +23,7 @@ pygame.display.set_caption("Flappy Bird Clone")
 
 def draw_blocks(block_x, block_y, block_width, block_height, gap):
     pygame.draw.rect(surface, WHITE, [block_x, block_y, block_width, block_height])
-    pygame.draw.rect(surface, WHITE, [block_x, block_y + block_height + gap, block_width, block_height])
+    pygame.draw.rect(surface, WHITE, [block_x, block_y + block_height + gap, block_width, SCREEN_Y])
 
 
 def draw_flappy_bird(x, y, image):
@@ -83,8 +83,8 @@ def main():
     block_x = SCREEN_X
     block_y = 0
     block_width = 75
-    block_height = randint(0, SCREEN_Y)
     gap = bird_rect.size[1] * 2
+    block_height = randint(0, SCREEN_Y - gap)
     block_move = 3
 
     should_quit = False
@@ -110,6 +110,9 @@ def main():
         if bird_y > (SCREEN_Y - bird_rect.size[1]) or bird_y < 0:
             game_over()
 
+        if block_x < (-1 * block_width):
+            block_x = SCREEN_X
+            block_height = randint(0, SCREEN_Y - gap)
         pygame.display.update()
         CLOCK.tick(FPS)
 
