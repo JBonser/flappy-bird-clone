@@ -21,6 +21,11 @@ surface = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
 pygame.display.set_caption("Flappy Bird Clone")
 
 
+def draw_score(count):
+    font = pygame.font.Font(GAME_FONT, 20)
+    text = font.render("Score: {}".format(count), True, WHITE)
+    surface.blit(text, [0, 0])
+
 def draw_blocks(block_x, block_y, block_width, block_height, gap):
     pygame.draw.rect(surface, WHITE, [block_x, block_y, block_width, block_height])
     pygame.draw.rect(surface, WHITE, [block_x, block_y + block_height + gap, block_width, SCREEN_Y])
@@ -74,18 +79,23 @@ def game_over():
 
 
 def main():
+    # Bird
     bird_x = 150
     bird_y = 200
     bird_y_move = 0
     bird_img = pygame.image.load('assets/flappy_bird.png')
     bird_rect = bird_img.get_rect()
 
+    # Blocks
     block_x = SCREEN_X
     block_y = 0
     block_width = 75
-    gap = bird_rect.size[1] * 2
+    gap = bird_rect.size[1] * 3
     block_height = randint(0, SCREEN_Y - gap)
     block_move = 3
+
+    # Game
+    current_score = 0
 
     should_quit = False
     while not should_quit:
@@ -111,6 +121,7 @@ def main():
         # Draw
         draw_flappy_bird(bird_x, bird_y, bird_img)
         draw_blocks(block_x, block_y, block_width, block_height, gap)
+        draw_score(current_score)
 
         # Boundary Check Ceiling and Floor
         if bird_y > (SCREEN_Y - bird_rect.size[1]) or bird_y < 0:
@@ -136,6 +147,10 @@ def main():
            bird_y + bird_rect.size[1] > block_height + gap and \
            bird_x < block_width + block_x:
             game_over()
+
+        # Update Score
+        if block_x > bird_x > block_x - block_move:
+            current_score += 1
 
         # Render the Screen
         pygame.display.update()
