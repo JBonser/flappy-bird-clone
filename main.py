@@ -89,6 +89,7 @@ def main():
 
     should_quit = False
     while not should_quit:
+        # Event Handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 should_quit = True
@@ -101,18 +102,42 @@ def main():
                 if event.key == pygame.K_UP:
                     bird_y_move = 5
 
-        bird_y += bird_y_move
+        # Fill Background
         surface.fill(BACKGROUND_COLOUR)
+
+        # Move Bird Along
+        bird_y += bird_y_move
+
+        # Draw
         draw_flappy_bird(bird_x, bird_y, bird_img)
         draw_blocks(block_x, block_y, block_width, block_height, gap)
-        block_x -= block_move
 
+        # Boundary Check Ceiling and Floor
         if bird_y > (SCREEN_Y - bird_rect.size[1]) or bird_y < 0:
             game_over()
 
+        # Move Blocks Along
+        block_x -= block_move
+
+        # Generate new blocks once they've gone off the screen
         if block_x < (-1 * block_width):
             block_x = SCREEN_X
             block_height = randint(0, SCREEN_Y - gap)
+
+        # Check Upper Block Bounds against Bird
+        if bird_x + bird_rect.size[0] > block_x and \
+           bird_x < block_x + block_width and \
+           bird_y < block_height and \
+           bird_x - bird_rect.size[0] < block_width + block_x:
+            game_over()
+
+        # Check Lower Block Bounds against Bird
+        if bird_x + bird_rect.size[0] > block_x and \
+           bird_y + bird_rect.size[1] > block_height + gap and \
+           bird_x < block_width + block_x:
+            game_over()
+
+        # Render the Screen
         pygame.display.update()
         CLOCK.tick(FPS)
 
