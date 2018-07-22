@@ -1,5 +1,7 @@
 import pygame
 import time
+from random import randint
+
 
 # Initialise Pygame
 pygame.init()
@@ -19,10 +21,12 @@ surface = pygame.display.set_mode((SCREEN_X, SCREEN_Y))
 pygame.display.set_caption("Flappy Bird Clone")
 
 
-# Bird Values
+def draw_blocks(block_x, block_y, block_width, block_height, gap):
+    pygame.draw.rect(surface, WHITE, [block_x, block_y, block_width, block_height])
+    pygame.draw.rect(surface, WHITE, [block_x, block_y + block_height + gap, block_width, block_height])
 
 
-def flappy_bird(x, y, image):
+def draw_flappy_bird(x, y, image):
     surface.blit(image, (x, y))
 
 
@@ -76,6 +80,13 @@ def main():
     bird_img = pygame.image.load('assets/flappy_bird.png')
     bird_rect = bird_img.get_rect()
 
+    block_x = SCREEN_X
+    block_y = 0
+    block_width = 75
+    block_height = randint(0, SCREEN_Y)
+    gap = bird_rect.size[1] * 2
+    block_move = 3
+
     should_quit = False
     while not should_quit:
         for event in pygame.event.get():
@@ -92,7 +103,9 @@ def main():
 
         bird_y += bird_y_move
         surface.fill(BACKGROUND_COLOUR)
-        flappy_bird(bird_x, bird_y, bird_img)
+        draw_flappy_bird(bird_x, bird_y, bird_img)
+        draw_blocks(block_x, block_y, block_width, block_height, gap)
+        block_x -= block_move
 
         if bird_y > (SCREEN_Y - bird_rect.size[1]) or bird_y < 0:
             game_over()
