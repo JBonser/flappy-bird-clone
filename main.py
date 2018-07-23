@@ -88,6 +88,22 @@ def game_over():
     send_message("Kaboom!")
 
 
+def collision_box_to_box(box1_x, box1_y, box1_width, box1_height, box2_x, box2_y, box2_width, box2_height):
+    if collision_point_to_box(box1_x, box1_y, box2_x, box2_y, box2_width, box2_height) or \
+       collision_point_to_box(box1_x + box1_width, box1_y, box2_x, box2_y, box2_width, box2_height) or \
+       collision_point_to_box(box1_x, box1_y + box1_height, box2_x, box2_y, box2_width, box2_height) or \
+       collision_point_to_box(box1_x + box1_width, box1_y + box1_height, box2_x, box2_y, box2_width, box2_height):
+        return True
+    return False
+
+
+def collision_point_to_box(point_x, point_y, box_x, box_y, box_width, box_height):
+    if box_x <= point_x <= box_x + box_width and \
+       box_y <= point_y <= box_y + box_height:
+        return True
+    return False
+
+
 def main():
     # Bird
     bird_x = 150
@@ -150,17 +166,10 @@ def main():
             block_colour = COLOUR_CHOICES[randrange(0, len(COLOUR_CHOICES))]
             allow_score_update = True
 
-        # Check Upper Block Bounds against Bird
-        if bird_x + bird_rect.size[0] > block_x and \
-           bird_x < block_x + block_width and \
-           bird_y < block_height and \
-           bird_x - bird_rect.size[0] < block_width + block_x:
-            game_over()
-
-        # Check Lower Block Bounds against Bird
-        if bird_x + bird_rect.size[0] > block_x and \
-           bird_y + bird_rect.size[1] > block_height + gap and \
-           bird_x < block_width + block_x:
+        if collision_box_to_box(bird_x, bird_y, bird_rect.size[0], bird_rect.size[1],
+                                block_x, block_y, block_width, block_height) or \
+           collision_box_to_box(bird_x, bird_y, bird_rect.size[0], bird_rect.size[1],
+                                block_x, block_y + block_height + gap, block_width, block_height):
             game_over()
 
         # Update Score
@@ -176,6 +185,7 @@ def main():
         CLOCK.tick(FPS)
 
 
-main()
-pygame.quit()
-quit()
+if __name__ == "__main__":
+    main()
+    pygame.quit()
+    quit()
